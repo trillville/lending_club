@@ -45,8 +45,8 @@ Due to computing power and time constraints, I only did 5-fold cross validation 
 
 NOTE - as the charts below show, one fold of the cross validation gave very very poor results for the linear regression based models. I am going to re-run the k-fold CV tonight with slightly more data to hopefully get cleaner plots!
 
-![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/model_perf_1.png)
-![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/model_perf2.png)
+![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/perf_plot1.png)
+![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/perf_plot2.png)
 
 Finally, I noticed that many of the older loans included a description feature, where borrowers would describe there lending situation in greater detail and provide updates to lenders. I analyzed this in a few interesting ways. The word cloud below shows the most frequently used expressions in these borrower descriptions. 
 ![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/word_cloud.png)
