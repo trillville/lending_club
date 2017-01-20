@@ -1,7 +1,20 @@
+library(readr)
+library(choroplethr)
+library(plyr)
+library(dplyr)
+library(ggplot2)
+library(tm)
+#library(stringr)
+library(slam)
+library(topicmodels)
+library(caret)
+library(lubridate)
+library(wordcloud)
+library(tidyr)
+library(corrplot)
+
 path <- "/Users/tillmanelser/Documents/R/Earnest"
 setwd(path)
-
-source("functions_libs.R")
 
 # Load and pre-process data ---------------------------------------------------------------
 
@@ -111,36 +124,6 @@ plot5.data <- approved.loans %>%
 plot5.data$region[plot5.data$addr_state == "DC"] = "district of columbia"
 
 plot5 <- state_choropleth(plot5.data, title = "Average Interest Rate by State: 2014-2016")
-
-# Title Text Analysis -----------------------------------------------
-
-# using a subset of the data to speed things up from here on
-set.seed(100)
-eda.subset <- createDataPartition(approved.loans$loan_status, p = .2, 
-                                  list = FALSE, 
-                                  times = 1)
-approved.small <- approved.loans[eda.subset, ]
-
-approved.small$title <- gsub("[[:cntrl:]]", " ", approved.small$title)  # replace control characters with space
-
-title.corpus = VCorpus(DataframeSource(approved.small[!is.na(approved.small$title), ]), 
-                       readerControl = list(reader = 
-                                              readTabular(mapping = list(content = "title", id = "id"))))
-
-title.dtm <- DocumentTermMatrix(title.corpus, control = list(stopwords = TRUE,
-                                                             removePunctuation = TRUE,
-                                                             removeNumbers = TRUE,
-                                                             sparse = TRUE,
-                                                             tolower = TRUE))
-title.dtm <- title.dtm[row_sums(title.dtm)>0 ,]
-
-lda.title <- LDA(title.dtm, k = 5, method = "Gibbs")
-title.topics <- data.frame(topics(lda.title))
-title.terms <- data.frame(terms(lda.title, 6))
-
-approved.small <- approved.small %>%
-  left_join(title.topics %>%
-              mutate(id = as.integer(rownames(title.topics))))
 
 
 # Modeling Fun ------------------------------------------------------------
@@ -306,24 +289,29 @@ plot(model1.pca, type = "l", npcs = 50)
 
 # Description Text Analysis -----------------------------------------------
 
-# approved.small$desc <- gsub("Borrower added on ", "", approved.small$desc) # delete leading comment
-# approved.small$desc <- gsub("[[:cntrl:]]", " ", approved.small$desc)  # replace control characters with space
-# 
-# corpus = VCorpus(DataframeSource(approved.small[!is.na(approved.small$desc), ]), 
-#                  readerControl = list(reader = 
-#                                         readTabular(mapping = list(content = "desc", id = "id"))))
-# 
-# dtm <- DocumentTermMatrix(corpus, control = list(stopwords = TRUE,
-#                                                  removePunctuation = TRUE,
-#                                                  removeNumbers = TRUE,
-#                                                  sparse = TRUE,
-#                                                  tolower = TRUE))
-# dtm <- dtm[row_sums(dtm)>0 ,]
-# 
-# lda.results <- LDA(dtm, k = 10, method = "Gibbs")
-# topics <- data.frame(topics(lda.results))
-# terms <- data.frame(terms(lda.results, 5))
-# 
-# approved.small <- approved.small %>%
-#   left_join(topics %>%
-#               mutate(id = as.integer(rownames(topics))))
+# using a subset of the data to speed things up from here on
+set.seed(100)
+eda.subset <- sample(nrow(approved.loans), nrow(approved.loans)/90)
+approved.small <- approved.loans[eda.subset, ]
+
+approved.small$desc <- gsub("Borrower added on ", "", approved.small$desc) # delete leading comment
+approved.small$desc <- gsub("[[:cntrl:]]", " ", approved.small$desc)  # replace control characters with space
+
+corpus = VCorpus(DataframeSource(approved.small[!is.na(approved.small$desc), ]),
+                 readerControl = list(reader =
+                                        readTabular(mapping = list(content = "desc", id = "id"))))
+
+dtm <- DocumentTermMatrix(corpus, control = list(stopwords = TRUE,
+                                                 removePunctuation = TRUE,
+                                                 removeNumbers = TRUE,
+                                                 sparse = TRUE,
+                                                 tolower = TRUE))
+dtm <- dtm[row_sums(dtm)>0 ,]
+
+lda.results <- LDA(dtm, k = 10, method = "Gibbs")
+topics <- data.frame(topics(lda.results))
+terms <- data.frame(terms(lda.results, 5))
+
+approved.small <- approved.small %>%
+  left_join(topics %>%
+              mutate(id = as.integer(rownames(topics))))
