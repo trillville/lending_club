@@ -27,7 +27,6 @@ Finally, I built a correlation matrix, which shows the temporal relationship bet
 ![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/plot3c.png)
 
 Given the geographic features contained in this dataset, I to explore the relationship between loan interest rate and location. Unfortunately (and understandably!), only the first 3 digits of each zip code was included, so is isn't possible to do zip code or county level analysis. It was surprising to see as much dispersion in the interest rates across states as I did - the average interest rate in D.C. was more than a full percentage point lower than the average rate in Iowa. A good extension of this analysis would be to determine to what extent other correlates with geographic location, such as income, home ownership, and DTI, explain these spreads. 
-
 ![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/plot5.png)
 
 # LendingClub Interest Rate Model
