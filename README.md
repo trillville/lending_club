@@ -63,6 +63,4 @@ To get a sense for the different kinds of topics that borrowers discussed, I use
 | want    | business | good    | consolidate | make     | also    | paying   | company     | cardsbr |
 | just    | funds    | never   | lower       | payments | money   | paid     | consolidate | medical |
 
-
 The fact that this feature was discontinued strongly suggests that the analysts at LendingClub determined that it was not useful in their credit scoring algorithm. Nevertheless, I am curious if one could have any success predicting borrower defaults based on the language they used in their descriptions. A simple way of exploring this would be a logistic regression predicting default based on “word score”. This score would be constructed by iterating through the list of words, and assigning it a likelihood based on the ratio of times that word was associated with non-defaulting vs defaulting loans. In other words, each word would be associated with the likelihood of that word being used in the description of a defaulting loan. Then, one could simply sum across each log likelihood for each word in a given user's description to get the final statistic (defined above as "word score").
-
