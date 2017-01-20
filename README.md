@@ -51,7 +51,7 @@ NOTE - as the charts below show, one fold of the cross validation gave very very
 Finally, I noticed that many of the older loans included a description feature, where borrowers would describe there lending situation in greater detail and provide updates to lenders. I analyzed this in a few interesting ways. The word cloud below shows the most frequently used expressions in these borrower descriptions. 
 ![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/word_cloud.png)
 
-To get a sense for the different kinds of topics that borrowers discussed, I used latent Dirichlet allocation to cluster the descriptions into 10 categories. The most frequently used words from each category are shown below:
+To get a sense for the different kinds of topics that borrowers discussed, I used latent Dirichlet allocation to cluster the descriptions into 9 categories. The most frequently used words from each category are shown below:
 
 
 | Topic 1 | Topic 2  | Topic 3 | Topic 4     | Topic 5  | Topic 6 | Topic 7  | Topic 8     | Topic 9 |
