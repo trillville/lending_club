@@ -291,7 +291,7 @@ all.resamples <- resamples(list("Linear Regression" = lm1,
                                 "Partial Least Squares" = pls1,
                                 "Lasso" = lasso1,
                                 "Regression Tree" = rpart1,
-                                "KNN" = knn1,
+                                #"KNN" = knn1,
                                 "Random Forest" = rf1,
                                 "XGBoost (tree)" = xgb1))
 
