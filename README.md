@@ -27,7 +27,6 @@ Finally, I built a correlation matrix, which shows the temporal relationship bet
 ![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/plot3c.png)
 
 Given the geographic features contained in this dataset, I to explore the relationship between loan interest rate and location. Unfortunately (and understandably!), only the first 3 digits of each zip code was included, so is isn't possible to do zip code or county level analysis. It was surprising to see as much dispersion in the interest rates across states as I did - the average interest rate in D.C. was more than a full percentage point lower than the average rate in Iowa. A good extension of this analysis would be to determine to what extent other correlates with geographic location, such as income, home ownership, and DTI, explain these spreads. 
-
 ![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/plot5.png)
 
 # LendingClub Interest Rate Model
@@ -50,10 +49,10 @@ NOTE - as the charts below show, one fold of the cross validation gave very very
 ![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/model_perf2.png)
 
 Finally, I noticed that many of the older loans included a description feature, where borrowers would describe there lending situation in greater detail and provide updates to lenders. I analyzed this in a few interesting ways. The word cloud below shows the most frequently used expressions in these borrower descriptions. 
-
 ![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/word_cloud.png)
 
-To get a sense for the different kinds of topics that borrowers discussed, I used latent Dirichlet allocation to cluster the descriptions into 10 categories. The most frequently used words from each category are shown below.:
+To get a sense for the different kinds of topics that borrowers discussed, I used latent Dirichlet allocation to cluster the descriptions into 9 categories. The most frequently used words from each category are shown below:
+
 
 | Topic 1 | Topic 2  | Topic 3 | Topic 4     | Topic 5  | Topic 6 | Topic 7  | Topic 8     | Topic 9 |
 |---------|----------|---------|-------------|----------|---------|----------|-------------|---------|
@@ -63,6 +62,4 @@ To get a sense for the different kinds of topics that borrowers discussed, I use
 | want    | business | good    | consolidate | make     | also    | paying   | company     | cardsbr |
 | just    | funds    | never   | lower       | payments | money   | paid     | consolidate | medical |
 
-
 The fact that this feature was discontinued strongly suggests that the analysts at LendingClub determined that it was not useful in their credit scoring algorithm. Nevertheless, I am curious if one could have any success predicting borrower defaults based on the language they used in their descriptions. A simple way of exploring this would be a logistic regression predicting default based on “word score”. This score would be constructed by iterating through the list of words, and assigning it a likelihood based on the ratio of times that word was associated with non-defaulting vs defaulting loans. In other words, each word would be associated with the likelihood of that word being used in the description of a defaulting loan. Then, one could simply sum across each log likelihood for each word in a given user's description to get the final statistic (defined above as "word score").
-
