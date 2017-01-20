@@ -209,15 +209,15 @@ featurePlot(x = small.x[, best.features],
             type = c("p", "smooth"),
             span = .5)
 
-set.seed(474)
-ctrl <- trainControl(method = "repeatedcv", repeats = 1, number = 5, search = "random",
+set.seed(100)
+ctrl <- trainControl(method = "repeatedcv", repeats = 1, number = 10, search = "random",
                      adaptive = list(min = 5, alpha = 0.05, 
                                      method = "gls", complete = TRUE))
 
 library(doMC)
 registerDoMC(cores = 6)
 
-set.seed(4334)
+set.seed(100)
 lm1 <- train(x = small.x, y = small.y,
              method = "lm",
              trControl = ctrl)
@@ -264,12 +264,12 @@ pls1 <- train(x = small.x, y = small.y,
               trControl = ctrl,
               preProcess = c("center", "scale") )
 
-set.seed(100)
-knn1 <- train(x = small.x, y = small.y,
-              method = "kknn",
-              tuneLength = 10,
-              trControl = ctrl,
-              preProcess = c("center", "scale") )
+# set.seed(100)
+# knn1 <- train(x = small.x, y = small.y,
+#               method = "kknn",
+#               tuneLength = 10,
+#               trControl = ctrl,
+#               preProcess = c("center", "scale") )
 
 all.resamples <- resamples(list("Linear Regression" = lm1,
                                 "Partial Least Squares" = pls1,
