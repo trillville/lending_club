@@ -74,7 +74,7 @@ plot3b <- ggplot(data = approved.loans[approved.loans$grade %in% c("A", "B", "C"
   facet_wrap(~purpose)
 
 #distributions of grades/purposes
-plot3c <- ggplot(data = approved.loans) +
+plot3c <- ggplot(data = approved.loans[approved.loans$issue_d == as.Date("2016-01-01"), ]) +
   geom_density(aes(x = int_rate, fill = purpose), alpha = 0.5) +
   facet_wrap(~purpose)
 
@@ -226,6 +226,7 @@ featurePlot(x = small.x[, best.features],
             type = c("p", "smooth"),
             span = .5)
 
+set.seed(474)
 ctrl <- trainControl(method = "repeatedcv", repeats = 1, number = 5, search = "random",
                      adaptive = list(min = 5, alpha = 0.05, 
                                      method = "gls", complete = TRUE))
@@ -233,7 +234,7 @@ ctrl <- trainControl(method = "repeatedcv", repeats = 1, number = 5, search = "r
 library(doMC)
 registerDoMC(cores = 6)
 
-set.seed(100)
+set.seed(4334)
 lm1 <- train(x = small.x, y = small.y,
              method = "lm",
              trControl = ctrl)
@@ -297,6 +298,11 @@ all.resamples <- resamples(list("Linear Regression" = lm1,
 
 parallel.plot1 <- parallelplot(all.resamples, metric = "Rsquared")
 parallel.plot2 <- parallelplot(all.resamples)
+
+# PCA Analysis
+
+model1.pca <- prcomp(small.x, center = TRUE, scale. = TRUE) 
+plot(model1.pca, type = "l", npcs = 50)
 
 # Description Text Analysis -----------------------------------------------
 
