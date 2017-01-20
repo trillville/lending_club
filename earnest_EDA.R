@@ -296,6 +296,7 @@ approved.small <- approved.loans[eda.subset, ]
 
 approved.small$desc <- gsub("Borrower added on ", "", approved.small$desc) # delete leading comment
 approved.small$desc <- gsub("[[:cntrl:]]", " ", approved.small$desc)  # replace control characters with space
+approved.small$desc <- removeWords(approved.small$desc, stopwords(kind = "SMART"))
 
 corpus = VCorpus(DataframeSource(approved.small[!is.na(approved.small$desc), ]),
                  readerControl = list(reader =
@@ -306,6 +307,7 @@ dtm <- DocumentTermMatrix(corpus, control = list(stopwords = TRUE,
                                                  removeNumbers = TRUE,
                                                  sparse = TRUE,
                                                  tolower = TRUE))
+
 dtm <- dtm[row_sums(dtm)>0 ,]
 
 lda.results <- LDA(dtm, k = 10, method = "Gibbs")
@@ -315,3 +317,6 @@ terms <- data.frame(terms(lda.results, 5))
 approved.small <- approved.small %>%
   left_join(topics %>%
               mutate(id = as.integer(rownames(topics))))
+
+wordcloud(corpus, scale=c(5,0.5), max.words=150, random.order=FALSE, 
+          rot.per=0.35, use.r.layout=FALSE, colors=brewer.pal(8, "Dark2"))
