@@ -41,9 +41,7 @@ The PCA plot reveals the relatively high dimensionality in the dataset. While th
 
 ![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/plot6.png)
 
-Due to computing power and time constraints, I only did 5-fold cross validation and trained based on a very small subset (~10,000 rows) of the dataset. Nevertheless, RandomForest and a modestly (tried 50 different combinations of tuning parameters) xgboost model performed quite well. Lasso/PLS both performed quite poorly, which is not terribly surprising, given the high dimensionality of the underlying data. The plots below compare the RMSE and R^2 of each model through each fold of 5-fold cross validation.
-
-NOTE - as the charts below show, one fold of the cross validation gave very very poor results for the linear regression based models. I am going to re-run the k-fold CV tonight with slightly more data to hopefully get cleaner plots!
+Due to computing power and time constraints, I only did 10-fold cross validation and trained based on a very small subset (~10,000 rows) of the dataset. Nevertheless, RandomForest and a modestly (tried 50 different combinations of tuning parameters) xgboost model performed quite well. Lasso/PLS both performed quite poorly, which is not terribly surprising, given the high dimensionality of the underlying data. The plots below compare the RMSE and R^2 of each model through each fold of 5-fold cross validation.
 
 ![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/perf_plot1.png)
 ![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/perf_plot2.png)
