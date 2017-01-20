@@ -40,10 +40,11 @@ plot1.data <- approved.loans %>%
 
 # Gross loan amount over time - group by grade
 plot1 <- ggplot(data = plot1.data) +
-  geom_area(aes(x = issue_d, y = Funded_Amount, fill = grade)) +
+  geom_area(aes(x = issue_d, y = Funded_Amount/1000000, fill = grade)) +
   xlab("Issue Date") +
-  ylab("Funded Amount") +
-  scale_x_date(limits = c(as.Date("2008-01-01"), NA))
+  ylab("Funded Amount ($mln)") +
+  scale_x_date(limits = c(as.Date("2008-01-01"), NA)) +
+  ggtitle("Funded Loans: 2008-2016")
 
 plot2.data <- approved.loans %>%
   group_by(issue_d, purpose) %>%
@@ -53,8 +54,9 @@ plot2.data <- approved.loans %>%
 plot2 <- ggplot(data = plot2.data) +
   geom_area(aes(x = issue_d, y = Funded_Amount, fill = purpose), position = "fill") +
   xlab("Issue Date") +
-  ylab("Funded Amount") +
-  scale_x_date(limits = c(as.Date("2008-01-01"), NA))
+  ylab("Proportion of Funded Loans") +
+  scale_x_date(limits = c(as.Date("2008-01-01"), NA)) +
+  ggtitle("Distribution of Loan Purpose")
 
 
 plot3 <- ggplot(data = approved.loans) +
@@ -71,15 +73,16 @@ plot3b <- ggplot(data = approved.loans[approved.loans$grade %in% c("A", "B", "C"
   scale_x_date(limits = c(as.Date("2008-01-01"), NA)) +
   facet_wrap(~purpose)
 
-#distribution of grades by purpose
+#distributions of grades/purposes
 plot3c <- ggplot(data = approved.loans) +
-  geom_density(aes(x = int_rate)) +
+  geom_density(aes(x = int_rate, fill = purpose), alpha = 0.5) +
   facet_wrap(~purpose)
 
 plot3d <- ggplot(data = approved.loans) +
   geom_bar(aes(x = grade, fill = purpose), stat = "count", position = "fill") +
-  facet_wrap(~purpose)
+  ylab("Proportion of Loan Grade") 
 
+# show the correlation over time between different loan purposes
 plot3e.data <- approved.loans %>%
   group_by(purpose, issue_d) %>%
   summarize(mean_rate = mean(int_rate, na.rm = TRUE)) %>%
@@ -89,13 +92,14 @@ plot3e.data <- approved.loans %>%
 plot3e.data <- na.omit(plot3e.data)
 plot3e <- corrplot.mixed(cor(plot3e.data[, -1]))
 
-
+# densities of interest rates by grade
 plot4 <- ggplot(data = approved.loans[approved.loans$issue_d == as.Date("2016-01-01"), ], aes(x = grade, y = int_rate, fill = grade)) +
   geom_violin(alpha=0.5) +
   coord_flip()
 
 key <- data.frame(state.name, state.abb)
 
+# map of average interest rate by state
 plot5.data <- approved.loans %>% 
   filter(year(issue_d) >= 2014) %>%
   group_by(addr_state) %>%
@@ -106,7 +110,7 @@ plot5.data <- approved.loans %>%
 
 plot5.data$region[plot5.data$addr_state == "DC"] = "district of columbia"
 
-plot5 <- state_choropleth(plot5.data, title = "Average Interest Rate by State")
+plot5 <- state_choropleth(plot5.data, title = "Average Interest Rate by State: 2014-2016")
 
 # Title Text Analysis -----------------------------------------------
 
@@ -144,9 +148,8 @@ approved.small <- approved.small %>%
 # quick check for columns that we may want to drop
 colSums(approved.loans != 0, na.rm = TRUE)/nrow(approved.loans)
 
-# Looks like many of the columns aren't populated until December 2015 - let's just use the post December 2015 subset for this
+# Looks like many of the columns aren't populated until December 2015 - let's just use the post December 2015 subset
 
-# predict interest rate charged
 model1.data <- approved.loans %>%
   select(-id, -member_id, -funded_amnt, -funded_amnt_inv, -url, -desc, -title, -zip_code, -total_acc, -out_prncp, -out_prncp_inv, 
          -total_pymnt, -total_pymnt_inv, -total_rec_prncp, -total_rec_int, -total_rec_late_fee, -recoveries, -collection_recovery_fee,
@@ -164,30 +167,27 @@ na.drops <- c("inq_last_6mths", "num_rev_accts", "bc_open_to_buy", "mths_since_r
               "revol_util", "bc_util") # very few missing observations (less than 0.1%) so just drop these
 
 # These are all months since last event. Seems likely that in this case NA refers to the event never happening.
-# Could be problematic to replace these with a number, so instead I will turn these into factor variables
-# (i.e. no record, recent record, medium recent record, distant record)
+# Going to set all NA values to the max observed. Could potentially improve performance by instead switching
+# to buckets (i.e. recent delinq; medium recent delinq; distant delinq; no delinq)
 switch.to.buckets <- c("mths_since_last_record", "mths_since_last_delinq", "mths_since_last_major_derog", "mths_since_rcnt_il",
                        "mo_sin_old_il_acct", "mths_since_recent_bc_dlq", "mths_since_recent_inq", "mths_since_recent_revol_delinq") 
 
 one.val.factors <- c("pymnt_plan", "policy_code") # factor variables with 1 unique value
 
-# TODO - flesh out this function and try using categories approach. For now, just going to encode as big numbers
-numToCat <- function(vec) {
-  stats <- fivenum(vec)
-  out.vec <- ifelse(vec < fivenum[2])
-}
-
 model1.data[, na.to.zero][is.na(model1.data[, na.to.zero])] <- 0
+
 model1.data <- model1.data[complete.cases(model1.data[, na.drops]), ]
-# TODO - re-encode this in a better way
-model1.data[, switch.to.buckets] <- apply(model1.data[, switch.to.buckets], 2, function(x) ifelse(is.na(x), max(x, na.rm = TRUE), x))
+
+model1.data[, switch.to.buckets] <- apply(model1.data[, switch.to.buckets], 2, 
+                                          function(x) ifelse(is.na(x), max(x, na.rm = TRUE), x))
+
 model1.data <- model1.data[, -which(names(model1.data) %in% one.val.factors)]
 
 colSums(!is.na(model1.data))/nrow(model1.data)  
 
 # Impute remaining missing values (<5% of the obs missing for a few remaining columns)
-#pp <- preProcess(model1.data, method = "bagImpute")
-#model1.data <- predict(pp, model1.data)
+pp <- preProcess(model1.data, method = "bagImpute")
+model1.data <- predict(pp, model1.data)
 
 ohe <- dummyVars(~., data = model1.data)
 model1.mat <- predict(ohe, model1.data)
@@ -195,7 +195,7 @@ colnames(model1.mat) <- make.names(colnames(model1.mat))
 
 library(Boruta)
 # use 5% of the data to speed it up
-model1.subset <- createDataPartition(model1.data$int_rate, p = .05, list = FALSE, times = 1)
+model1.subset <- createDataPartition(model1.data$int_rate, p = .015, list = FALSE, times = 1)
 model1.small <- model1.mat[model1.subset, ]
 
 feature.analysis <- Boruta(model1.x, model1.y, doTrace = 2)
@@ -210,8 +210,9 @@ small.x <- model1.small[, good.features]
 small.y <- model1.small[, "int_rate"]
 
 library(randomForest)
-rf1 <- randomForest(x = small.x, y = small.y, ntree = 100, importance = TRUE)
-best.features <- row.names(rf1$importance)[1:10]
+rf.imp <- randomForest(x = small.x, y = small.y, ntree = 500, importance = TRUE)
+varImpPlot(rf.imp)
+best.features <- row.names(rf.imp$importance)[1:10]
 
 theme1 <- trellis.par.get()
 theme1$plot.symbol$col = rgb(.2, .2, .2, .4)
@@ -223,7 +224,7 @@ featurePlot(x = small.x[, best.features],
             y = small.y, 
             plot = "scatter",
             type = c("p", "smooth"),
-            span = .5)ß
+            span = .5)
 
 ctrl <- trainControl(method = "repeatedcv", repeats = 1, number = 5, search = "random",
                      adaptive = list(min = 5, alpha = 0.05, 
@@ -264,7 +265,8 @@ set.seed(100)
 lasso1 <- train(x = small.x, y = small.y,
                 method = "glmnet",
                 tuneLength = 25,
-                trControl = ctrl) 
+                trControl = ctrl,
+                preProcess = c("center", "scale"))
 
 # set.seed(100)
 # gam1 <- train(x = small.x, y = small.y,
@@ -275,13 +277,21 @@ set.seed(100)
 pls1 <- train(x = small.x, y = small.y,
               method = "pls",
               tuneLength = 10,
-              trControl = ctrl) 
+              trControl = ctrl,
+              preProcess = c("center", "scale") )
+
+set.seed(100)
+knn1 <- train(x = small.x, y = small.y,
+              method = "kknn",
+              tuneLength = 10,
+              trControl = ctrl,
+              preProcess = c("center", "scale") )
 
 all.resamples <- resamples(list("Linear Regression" = lm1,
                                 "Partial Least Squares" = pls1,
                                 "Lasso" = lasso1,
-                                "Generalized Additive Model" = gam1,
-                                "Support Vector Machine" = svm1,
+                                "Regression Tree" = rpart1,
+                                "KNN" = knn1,
                                 "Random Forest" = rf1,
                                 "XGBoost (tree)" = xgb1))
 

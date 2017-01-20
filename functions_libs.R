@@ -11,6 +11,7 @@ library(caret)
 library(lubridate)
 library(wordcloud)
 library(tidyr)
+library(corrplot)
 
 # breaks a data frame of tweets into a data frame of words
 clusterDescriptions <- function(df, num.topics) {
