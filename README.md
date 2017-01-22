@@ -33,7 +33,7 @@ Given the geographic features contained in this dataset, I to explore the relati
 
 Next, I thought it would be a fun exercise to see the success to which I could re-estimate the LendingClub assigned ‘grades’. I decided to treat it as a regression problem, as opposed to a multi-category classification, because for a given point in time there is essentially zero overlap between the interest rates assigned to different grades. Moreover, the problem of assigning a risk weighted score translates more intuitively to a regression setting, and it's likely that the LendingClub 'grades' are actually derived from the corresponding risk-weighted interest rate (not the other way around!). I used the Boruta algorithm and some feature engineering to put together a useful feature space, and then compared performance across a suite of different models. 
 
-I used these models to get some useful insights into the underlying data set. Variable importance plots and PCA give a sense for the most influential features and the dimensionality of the feature space, respectively.
+I used Variable importance plots and PCA to get a sense for the most influential features and the dimensionality of the feature space.
 
 ![Alt text](https://github.com/trillville/lending_club/blob/master/screenshots/var_imp_plot.png)
 
